@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         String
+  candidate    Candidate?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Candidate {
+  id               String           @id @default(uuid())
+  userId           String           @unique
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registrationId   String           @unique
+  examAssignments  ExamAssignment[]
+  examSessions     ExamSession[]
+  responseEvents   ResponseEvent[]
+  currentResponses CurrentResponse[]
+  submissions      ExamSubmission[]
+  auditEvents      AuditEvent[]
+  createdAt        DateTime         @default(now())
+}
+
+model Examination {
+  id                String           @id @default(uuid())
+  title             String
+  description       String
+  durationMinutes   Int
+  status            String           @default("DRAFT")
+  questions         Question[]
+  assignments       ExamAssignment[]
+  sessions          ExamSession[]
+  responseEvents    ResponseEvent[]
+  currentResponses  CurrentResponse[]
+  submissions       ExamSubmission[]
+  syncOutbox        SyncOutbox[]
+  syncInbox         SyncInbox[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model Question {
+  id        String      @id @default(uuid())
+  examId    String
+  exam      Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  text      String
+  order     Int
+  options   Option[]
+  createdAt DateTime    @default(now())
+}
+
+model Option {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean  @default(false)
+  order      Int
+}
+
+model ExamAssignment {
+  id         String      @id @default(uuid())
+  examId     String
+  exam       Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  status     String      @default("ASSIGNED")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([examId, candidateId])
+}
+
+model ExamSession {
+  id                   String      @id @default(uuid())
+  examId               String
+  exam                 Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  candidateId          String
+  candidate            Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  status               String      @default("ACTIVE")
+  startedAt            DateTime    @default(now())
+  endedAt              DateTime?
+  currentQuestionIndex Int?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+}
+
+model ResponseEvent {
+  id            String      @id @default(uuid())
+  eventId       String      @unique
+  examId        String
+  exam          Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  candidateId   String
+  candidate     Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  sessionId     String
+  questionId    String
+  answer        String
+  sequenceNumber Int
+  version       Int
+  status        String      @default("PENDING_SYNC")
+  previousHash  String?
+  currentHash   String?
+  source        String      @default("browser")
+  createdAt     DateTime    @default(now())
+
+  @@index([candidateId, examId], name: "response_candidate_exam_idx")
+  @@unique([sessionId, questionId, sequenceNumber], name: "unique_response_sequence")
+}
+
+model CurrentResponse {
+  id            String      @id @default(uuid())
+  examId        String
+  exam          Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  candidateId   String
+  candidate     Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  sessionId     String
+  questionId    String
+  answer        String
+  version       Int         @default(0)
+  status        String      @default("PENDING_SYNC")
+  lastUpdatedAt DateTime    @updatedAt
+
+  @@unique([candidateId, examId, questionId], name: "current_response_unique")
+}
+
+model AuditEvent {
+  id           String    @id @default(uuid())
+  eventId      String    @unique
+  type         String
+  details      String
+  candidateId  String?
+  candidate    Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  sessionId    String?
+  examId       String?
+  previousHash String?
+  currentHash  String?
+  createdAt    DateTime  @default(now())
+
+  @@index([candidateId, createdAt], name: "audit_candidate_time_idx")
+}
+
+model NodeHealth {
+  id          String   @id @default(uuid())
+  nodeName    String   @unique
+  status      String   @default("ONLINE")
+  message     String
+  lastUpdated DateTime @updatedAt
+}
+
+model SyncOutbox {
+  id         String      @id @default(uuid())
+  examId     String
+  exam       Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  candidateId String
+  eventId    String
+  payload    String
+  status     String      @default("PENDING")
+  createdAt  DateTime    @default(now())
+}
+
+model SyncInbox {
+  id         String      @id @default(uuid())
+  examId     String
+  exam       Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  candidateId String
+  eventId    String
+  payload    String
+  status     String      @default("RECEIVED")
+  createdAt  DateTime    @default(now())
+}
+
+model ExamSubmission {
+  id           String      @id @default(uuid())
+  examId       String
+  exam         Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  candidateId  String
+  candidate    Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  sessionId    String
+  submissionId String      @unique
+  submittedAt  DateTime    @default(now())
+  status       String      @default("SUBMITTED")
+}

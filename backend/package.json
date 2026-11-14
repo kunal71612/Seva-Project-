@@ -1,0 +1,40 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "OneMind backend API for the exam continuity prototype",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:push": "prisma db push",
+    "prisma:generate": "prisma generate",
+    "db:seed": "tsx src/seed.ts",
+    "test": "echo \"No automated backend tests configured yet.\""
+  },
+  "keywords": [
+    "exam",
+    "seva",
+    "offline",
+    "prisma"
+  ],
+  "author": "OneMind Labs",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "uuid": "^14.0.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.19.2",
+    "prisma": "^5.22.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

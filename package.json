@@ -1,0 +1,20 @@
+{
+  "name": "seva-project-",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace backend\" \"npm run dev --workspace frontend\"",
+    "build": "npm run build --workspace frontend && npm run build --workspace backend",
+    "db:push": "npm run db:push --workspace backend",
+    "db:seed": "npm run db:seed --workspace backend",
+    "prisma:generate": "npm run prisma:generate --workspace backend",
+    "lint": "npm run lint --workspace frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
