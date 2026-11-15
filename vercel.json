@@ -3,17 +3,17 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/**": {
-      "includeFiles": "backend/prisma/**"
+    "api/index.js": {
+      "includeFiles": "backend/prisma/dev.db"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/[...all]"
+      "destination": "/api"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]

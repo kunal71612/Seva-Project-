@@ -187,10 +187,10 @@ function requireCandidate(req, res, next) {
 // App middleware
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-// Path normalizer: seamlessly support both /api/* and root /* (for Vercel service rewrites & internal bindings)
+// Path normalizer: seamlessly support both /api/* and root /* paths
 app.use((req, _res, next) => {
-    if (req.url.startsWith('/api/index.js')) {
-        req.url = req.url.replace('/api/index.js', '') || '/api/health';
+    if (process.env.VERCEL) {
+        console.log(`[OneMind] ${req.method} req.url=${req.url} x-now-route=${req.headers['x-now-route'] || 'none'}`);
     }
     if (!req.url.startsWith('/api/') && req.url !== '/api') {
         req.url = `/api${req.url.startsWith('/') ? req.url : '/' + req.url}`;
