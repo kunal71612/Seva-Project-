@@ -50,23 +50,37 @@ const client_1 = require("@prisma/client");
 const node_fs_1 = __importDefault(require("node:fs"));
 dotenv_1.default.config({ path: node_path_1.default.resolve(__dirname, '../.env') });
 // Vercel Serverless environment compatibility: copy pre-seeded SQLite to /tmp for write access
+let activeDbUrl = process.env.DATABASE_URL;
 if (process.env.VERCEL) {
     const tmpDbPath = '/tmp/dev.db';
-    const seedDbPath = node_path_1.default.resolve(__dirname, '../prisma/dev.db');
-    if (!node_fs_1.default.existsSync(tmpDbPath) && node_fs_1.default.existsSync(seedDbPath)) {
+    const candidateSeedPaths = [
+        node_path_1.default.resolve(__dirname, '../prisma/dev.db'),
+        node_path_1.default.resolve(process.cwd(), 'backend/prisma/dev.db'),
+        node_path_1.default.resolve(__dirname, '../../backend/prisma/dev.db'),
+        node_path_1.default.resolve(process.cwd(), 'prisma/dev.db'),
+    ];
+    let foundSeedPath = null;
+    for (const candidate of candidateSeedPaths) {
+        if (node_fs_1.default.existsSync(candidate)) {
+            foundSeedPath = candidate;
+            break;
+        }
+    }
+    if (!node_fs_1.default.existsSync(tmpDbPath) && foundSeedPath) {
         try {
-            node_fs_1.default.copyFileSync(seedDbPath, tmpDbPath);
-            process.env.DATABASE_URL = `file:${tmpDbPath}`;
+            node_fs_1.default.copyFileSync(foundSeedPath, tmpDbPath);
+            console.log(`[Vercel SQLite] Seeded /tmp/dev.db from ${foundSeedPath}`);
         }
         catch (err) {
             console.warn('Vercel SQLite tmp copy warning:', err);
         }
     }
-    else if (node_fs_1.default.existsSync(tmpDbPath)) {
-        process.env.DATABASE_URL = `file:${tmpDbPath}`;
+    if (node_fs_1.default.existsSync(tmpDbPath)) {
+        activeDbUrl = `file:${tmpDbPath}`;
+        process.env.DATABASE_URL = activeDbUrl;
     }
 }
-const prisma = new client_1.PrismaClient();
+const prisma = new client_1.PrismaClient(activeDbUrl ? { datasources: { db: { url: activeDbUrl } } } : undefined);
 const app = (0, express_1.default)();
 exports.app = app;
 const port = Number(process.env.PORT || 4000);
@@ -175,8 +189,11 @@ app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // Path normalizer: seamlessly support both /api/* and root /* (for Vercel service rewrites & internal bindings)
 app.use((req, _res, next) => {
+    if (req.url.startsWith('/api/index.js')) {
+        req.url = req.url.replace('/api/index.js', '') || '/api/health';
+    }
     if (!req.url.startsWith('/api/') && req.url !== '/api') {
-        req.url = `/api${req.url}`;
+        req.url = `/api${req.url.startsWith('/') ? req.url : '/' + req.url}`;
     }
     next();
 });

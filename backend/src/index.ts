@@ -10,22 +10,43 @@ import fs from 'node:fs';
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // Vercel Serverless environment compatibility: copy pre-seeded SQLite to /tmp for write access
+let activeDbUrl = process.env.DATABASE_URL;
+
 if (process.env.VERCEL) {
   const tmpDbPath = '/tmp/dev.db';
-  const seedDbPath = path.resolve(__dirname, '../prisma/dev.db');
-  if (!fs.existsSync(tmpDbPath) && fs.existsSync(seedDbPath)) {
+  const candidateSeedPaths = [
+    path.resolve(__dirname, '../prisma/dev.db'),
+    path.resolve(process.cwd(), 'backend/prisma/dev.db'),
+    path.resolve(__dirname, '../../backend/prisma/dev.db'),
+    path.resolve(process.cwd(), 'prisma/dev.db'),
+  ];
+
+  let foundSeedPath: string | null = null;
+  for (const candidate of candidateSeedPaths) {
+    if (fs.existsSync(candidate)) {
+      foundSeedPath = candidate;
+      break;
+    }
+  }
+
+  if (!fs.existsSync(tmpDbPath) && foundSeedPath) {
     try {
-      fs.copyFileSync(seedDbPath, tmpDbPath);
-      process.env.DATABASE_URL = `file:${tmpDbPath}`;
+      fs.copyFileSync(foundSeedPath, tmpDbPath);
+      console.log(`[Vercel SQLite] Seeded /tmp/dev.db from ${foundSeedPath}`);
     } catch (err) {
       console.warn('Vercel SQLite tmp copy warning:', err);
     }
-  } else if (fs.existsSync(tmpDbPath)) {
-    process.env.DATABASE_URL = `file:${tmpDbPath}`;
+  }
+
+  if (fs.existsSync(tmpDbPath)) {
+    activeDbUrl = `file:${tmpDbPath}`;
+    process.env.DATABASE_URL = activeDbUrl;
   }
 }
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(
+  activeDbUrl ? { datasources: { db: { url: activeDbUrl } } } : undefined
+);
 const app = express();
 const port = Number(process.env.PORT || 4000);
 const JWT_SECRET = process.env.JWT_SECRET || 'onemind-demo-secret-key-2026-challenge';
@@ -187,8 +208,11 @@ app.use(express.json());
 
 // Path normalizer: seamlessly support both /api/* and root /* (for Vercel service rewrites & internal bindings)
 app.use((req, _res, next) => {
+  if (req.url.startsWith('/api/index.js')) {
+    req.url = req.url.replace('/api/index.js', '') || '/api/health';
+  }
   if (!req.url.startsWith('/api/') && req.url !== '/api') {
-    req.url = `/api${req.url}`;
+    req.url = `/api${req.url.startsWith('/') ? req.url : '/' + req.url}`;
   }
   next();
 });
