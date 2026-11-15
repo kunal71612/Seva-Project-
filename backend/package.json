@@ -10,7 +10,7 @@
     "db:push": "prisma db push",
     "prisma:generate": "prisma generate",
     "db:seed": "tsx src/seed.ts",
-    "test": "echo \"No automated backend tests configured yet.\""
+    "test": "node dist/test.js"
   },
   "keywords": [
     "exam",

@@ -7,12 +7,13 @@
     "backend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace backend\" \"npm run dev --workspace frontend\"",
-    "build": "npm run build --workspace frontend && npm run build --workspace backend",
-    "db:push": "npm run db:push --workspace backend",
-    "db:seed": "npm run db:seed --workspace backend",
-    "prisma:generate": "npm run prisma:generate --workspace backend",
-    "lint": "npm run lint --workspace frontend"
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "build": "npm --prefix frontend run build && npm --prefix backend run build",
+    "db:push": "npm --prefix backend run db:push",
+    "db:seed": "npm --prefix backend run db:seed",
+    "prisma:generate": "npm --prefix backend run prisma:generate",
+    "test": "npm --prefix backend run test",
+    "lint": "npm --prefix frontend run lint"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
