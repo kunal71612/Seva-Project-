@@ -173,6 +173,13 @@ function requireCandidate(req, res, next) {
 // App middleware
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+// Path normalizer: seamlessly support both /api/* and root /* (for Vercel service rewrites & internal bindings)
+app.use((req, _res, next) => {
+    if (!req.url.startsWith('/api/') && req.url !== '/api') {
+        req.url = `/api${req.url}`;
+    }
+    next();
+});
 // Health Check
 app.get('/api/health', (_req, res) => {
     res.json({

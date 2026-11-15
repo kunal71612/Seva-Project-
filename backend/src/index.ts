@@ -185,6 +185,14 @@ function requireCandidate(req: AuthenticatedRequest, res: Response, next: NextFu
 app.use(cors());
 app.use(express.json());
 
+// Path normalizer: seamlessly support both /api/* and root /* (for Vercel service rewrites & internal bindings)
+app.use((req, _res, next) => {
+  if (!req.url.startsWith('/api/') && req.url !== '/api') {
+    req.url = `/api${req.url}`;
+  }
+  next();
+});
+
 // Health Check
 app.get('/api/health', (_req, res) => {
   res.json({
