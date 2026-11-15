@@ -1317,8 +1317,8 @@ app.get('/api/audit/verify', async (_req, res) => {
 async function startServer(customPort) {
     const listenPort = customPort || port;
     return new Promise((resolve) => {
-        const server = app.listen(listenPort, '127.0.0.1', () => {
-            console.log(`OneMind Exam Continuity Backend running at http://127.0.0.1:${listenPort}`);
+        const server = app.listen(listenPort, '0.0.0.0', () => {
+            console.log(`OneMind Exam Continuity Backend running at http://localhost:${listenPort}`);
             resolve(server);
         });
     });
