@@ -156,109 +156,133 @@ function LoginPage({ onLogin }: { onLogin: (u: any) => void }) {
   };
 
   return (
-    <div style={{ maxWidth: '580px', margin: '2rem auto' }}>
-      <div className="card">
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div className="brand-badge" style={{ display: 'inline-block', marginBottom: '0.5rem' }}>
-            SEVA 2026 PROTOTYPE
+    <div className="login-page">
+      <div className="login-card">
+        <section className="login-brand-panel">
+          <div className="login-brand-kicker">OneMind Labs <span /> SEVA 2026</div>
+          <img
+            className="login-brand-logo"
+            src="/onemind-logo.png"
+            alt="OneMind Labs — Ideas for a Better Tomorrow"
+          />
+          <div className="login-brand-copy">
+            <span className="login-eyebrow">Offline-first examination continuity</span>
+            <h1>Exams that keep moving forward.</h1>
+            <p>Secure, dependable assessments designed to stay available when it matters most.</p>
           </div>
-          <h2 className="card-title" style={{ fontSize: '1.4rem' }}>
-            OneMind Authentication Gateway
-          </h2>
-          <p className="card-desc">
-            Offline-first examination continuity demonstration. Select your role to sign in.
-          </p>
-        </div>
-
-        {error && <div className="alert alert-danger">{error}</div>}
-
-        <div className="tab-list" style={{ justifyContent: 'center' }}>
-          <button
-            className={`tab-btn ${tab === 'candidate' ? 'active' : ''}`}
-            onClick={() => { setTab('candidate'); setError(null); }}
-          >
-            Candidate Sign In
-          </button>
-          <button
-            className={`tab-btn ${tab === 'admin' ? 'active' : ''}`}
-            onClick={() => { setTab('admin'); setError(null); }}
-          >
-            Administrator Sign In
-          </button>
-        </div>
-
-        {tab === 'candidate' ? (
-          <form onSubmit={handleCandidateLogin}>
-            <div className="form-group">
-              <label className="form-label">Registration ID</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="e.g. CAND-101"
-                value={candidateRegId}
-                onChange={(e) => setCandidateRegId(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Password / Passcode</label>
-              <input
-                type="password"
-                className="form-input"
-                value={candidatePassword}
-                onChange={(e) => setCandidatePassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
-              {loading ? 'Authenticating...' : 'Enter Examination Interface'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleAdminLogin}>
-            <div className="form-group">
-              <label className="form-label">Administrator Email</label>
-              <input
-                type="email"
-                className="form-input"
-                placeholder="admin@onemind.local"
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-input"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
-              {loading ? 'Authenticating...' : 'Access Administration Panel'}
-            </button>
-          </form>
-        )}
-
-        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid #e2e8f0' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-            Demo Quick-Fill Credentials
+          <div className="login-brand-footer">
+            <span className="login-status-dot" />
+            Built for examination continuity
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => fillDemo('cand1')} className="btn btn-secondary btn-sm">
-              Candidate 1 (CAND-101)
+        </section>
+
+        <section className="login-form-panel">
+          <div className="login-form-heading">
+            <span className="login-eyebrow">Welcome to OneMind</span>
+            <h2>Sign in to continue</h2>
+            <p>Choose your account type to access the platform.</p>
+          </div>
+
+          {error && <div className="alert alert-danger" role="alert">{error}</div>}
+
+          <div className="login-tabs" role="tablist" aria-label="Account type">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'candidate'}
+              className={`login-tab ${tab === 'candidate' ? 'active' : ''}`}
+              onClick={() => { setTab('candidate'); setError(null); }}
+            >
+              Candidate
             </button>
-            <button type="button" onClick={() => fillDemo('cand2')} className="btn btn-secondary btn-sm">
-              Candidate 2 (CAND-102)
-            </button>
-            <button type="button" onClick={() => fillDemo('admin')} className="btn btn-secondary btn-sm">
-              Admin (admin@onemind.local)
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'admin'}
+              className={`login-tab ${tab === 'admin' ? 'active' : ''}`}
+              onClick={() => { setTab('admin'); setError(null); }}
+            >
+              Administrator
             </button>
           </div>
-        </div>
+
+          {tab === 'candidate' ? (
+            <form className="login-form" onSubmit={handleCandidateLogin}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="candidate-registration">Registration ID</label>
+                <input
+                  id="candidate-registration"
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. CAND-101"
+                  value={candidateRegId}
+                  onChange={(e) => setCandidateRegId(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="candidate-password">Password / Passcode</label>
+                <input
+                  id="candidate-password"
+                  type="password"
+                  className="form-input"
+                  value={candidatePassword}
+                  onChange={(e) => setCandidatePassword(e.target.value)}
+                  required
+                />
+              </div>
+              <button type="submit" disabled={loading} className="btn btn-primary login-submit">
+                {loading ? 'Authenticating...' : 'Enter Examination Interface'}
+              </button>
+            </form>
+          ) : (
+            <form className="login-form" onSubmit={handleAdminLogin}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="admin-email">Administrator Email</label>
+                <input
+                  id="admin-email"
+                  type="email"
+                  className="form-input"
+                  placeholder="admin@onemind.local"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="admin-password">Password</label>
+                <input
+                  id="admin-password"
+                  type="password"
+                  className="form-input"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <button type="submit" disabled={loading} className="btn btn-primary login-submit">
+                {loading ? 'Authenticating...' : 'Access Administration Panel'}
+              </button>
+            </form>
+          )}
+
+          <div className="demo-credentials">
+            <div className="demo-credentials-heading">Demo quick-fill</div>
+            <p>Use a sample account to explore the platform.</p>
+            <div className="demo-credential-actions">
+              <button type="button" onClick={() => fillDemo('cand1')} className="btn btn-secondary btn-sm">
+                Candidate 1
+              </button>
+              <button type="button" onClick={() => fillDemo('cand2')} className="btn btn-secondary btn-sm">
+                Candidate 2
+              </button>
+              <button type="button" onClick={() => fillDemo('admin')} className="btn btn-secondary btn-sm">
+                Administrator
+              </button>
+            </div>
+          </div>
+          <div className="login-form-footer">Protected access for candidates and administrators</div>
+        </section>
       </div>
     </div>
   );
