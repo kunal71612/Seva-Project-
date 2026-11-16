@@ -211,13 +211,6 @@ app.use((req, _res, next) => {
   if (process.env.VERCEL) {
     console.log(`[OneMind] ${req.method} req.url=${req.url} x-now-route=${req.headers['x-now-route'] || 'none'}`);
   }
-  const route = req.query.route;
-  if ((req.path === '/api' || req.path === '/api/index.js') && typeof route === 'string') {
-    const query = new URLSearchParams(req.url.split('?')[1] || '');
-    query.delete('route');
-    const remainingQuery = query.toString();
-    req.url = `/api/${route.replace(/^\/+/, '')}${remainingQuery ? `?${remainingQuery}` : ''}`;
-  }
   if (!req.url.startsWith('/api/') && req.url !== '/api') {
     req.url = `/api${req.url.startsWith('/') ? req.url : '/' + req.url}`;
   }
@@ -1533,3 +1526,4 @@ if (require.main === module) {
 }
 
 export { app };
+export default app;

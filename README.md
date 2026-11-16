@@ -140,20 +140,21 @@ npm test
 
 ## 7. Deploying to Vercel
 
-OneMind includes a root [`vercel.json`](file:///vercel.json) and serverless entrypoint ([`api/index.ts`](file:///api/index.ts)) ready for immediate one-click deployment to Vercel:
+OneMind uses Vercel Services to deploy the frontend and backend from the repository root as one project:
 
 1. **Via GitHub & Vercel Dashboard:**
    - Push your code to GitHub.
    - Go to [vercel.com/new](https://vercel.com/new) and import the repository.
-   - Vercel automatically detects `vercel.json` and runs `npm run build`.
-   - Output directory: `frontend/dist`.
+   - Keep the Vercel project root directory set to the repository root.
+   - The root [`vercel.json`](./vercel.json) builds `frontend/` and `backend/` as separate services.
+   - Public `/api/*` requests route to the backend; all other paths route to the frontend.
    - Click **Deploy**.
 2. **Via Vercel CLI:**
    ```bash
    npm i -g vercel
    vercel
    ```
-*Note on Vercel Serverless Storage:* On cold start in the Vercel serverless environment, OneMind automatically mirrors the pre-seeded SQLite database to `/tmp/dev.db` for full write compatibility. For persistent multi-instance production databases, connect any hosted PostgreSQL database (such as Neon, Supabase, or Vercel Postgres) via `DATABASE_URL`.
+The frontend calls the public same-origin `/api` route, so the two services do not need a private service binding. The backend includes the seeded SQLite database in its function bundle and copies it to `/tmp` at startup. This storage is ephemeral; use a persistent hosted database for production.
 
 ---
 

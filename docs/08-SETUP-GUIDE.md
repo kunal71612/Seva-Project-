@@ -73,7 +73,7 @@ npm test
 
 ## 6. Deploying to Vercel
 
-OneMind is pre-configured with `vercel.json` and serverless API routing (`api/index.ts`) for immediate deployment to Vercel.
+OneMind is configured as a Vercel Services project with separate `backend` and `frontend` services. Keep the Vercel project root directory set to the repository root so both service roots and the root `vercel.json` are available.
 
 ### Method A: Deploy via Vercel CLI (Fastest)
 
@@ -90,7 +90,7 @@ Follow the prompts:
 - **Which scope?** (Select your account)
 - **Link to existing project?** [N]
 - **What’s your project’s name?** `onemind-seva`
-- **In which directory is your code located?** `./`
+- **In which directory is your code located?** `./` (repository root)
 
 ### Method B: Deploy via GitHub & Vercel Web Dashboard
 
@@ -98,12 +98,9 @@ Follow the prompts:
 2. Go to [vercel.com/new](https://vercel.com/new).
 3. Import your GitHub repository (`Seva-Project-`).
 4. Vercel automatically detects `vercel.json`:
-   - **Framework Preset:** Vite
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `frontend/dist`
+   - `backend/` builds as the Express service.
+   - `frontend/` builds as the Vite service.
+   - Public `/api/*` routes go to the backend; other routes go to the frontend.
 5. Click **Deploy**.
 
-### Serverless SQLite Storage Note
-- Vercel Serverless Functions have an ephemeral, writable `/tmp` filesystem.
-- On cold start, OneMind automatically copies the pre-seeded `backend/prisma/dev.db` into `/tmp/dev.db` so the live demonstration, questions, candidate responses, and audit verification work seamlessly on Vercel out of the box!
-- For long-term multi-instance persistence in production, simply supply a cloud database URL (`DATABASE_URL=postgresql://...`) such as Neon, Supabase, or Vercel Postgres in your Vercel Environment Variables.
+The frontend calls `/api` on the same public origin; no service binding is needed because there are no server-to-server HTTP calls. The backend bundles the seeded SQLite database and copies it to `/tmp` at startup. That storage is ephemeral, so configure a persistent hosted database for production.
