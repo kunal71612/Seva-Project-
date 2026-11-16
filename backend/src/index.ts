@@ -212,7 +212,7 @@ app.use((req, _res, next) => {
     console.log(`[OneMind] ${req.method} req.url=${req.url} x-now-route=${req.headers['x-now-route'] || 'none'}`);
   }
   const route = req.query.route;
-  if (req.path === '/api' && typeof route === 'string') {
+  if ((req.path === '/api' || req.path === '/api/index.js') && typeof route === 'string') {
     const query = new URLSearchParams(req.url.split('?')[1] || '');
     query.delete('route');
     const remainingQuery = query.toString();
