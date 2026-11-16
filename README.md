@@ -5,6 +5,7 @@
 **Sub-Theme:** Reliable, secure and glitch-free digital entrance examination systems  
 **Organization:** OneMind Labs  
 **Repository:** [github.com/kunal71612/Seva-Project-](https://github.com/kunal71612/Seva-Project-)  
+**Live Demo:** [Open OneMind on Vercel](https://seva-project-three.vercel.app/)<br>
 **Prototype Version:** 1.0.0 (Working Demonstration Prototype)
 
 ---

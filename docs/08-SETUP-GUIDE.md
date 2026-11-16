@@ -75,6 +75,8 @@ npm test
 
 OneMind is configured as a Vercel Services project with separate `backend` and `frontend` services. Keep the Vercel project root directory set to the repository root so both service roots and the root `vercel.json` are available.
 
+**Live Demo:** [https://seva-project-three.vercel.app/](https://seva-project-three.vercel.app/)
+
 ### Method A: Deploy via Vercel CLI (Fastest)
 
 ```bash
